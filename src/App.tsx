@@ -1,4 +1,5 @@
 import { createGlobalStyle } from "styled-components";
+import { ReactQueryDevtools } from 'react-query/devtools'
 import Router from "./Router";
 
 const GlobalStyle = createGlobalStyle`
@@ -59,7 +60,7 @@ table {
 body{
   font-family: 'Source Sans Pro', sans-serif;
   background-color: ${(props) => props.theme.bgColor};
-  color : ${(props)=> props.theme.textColor}
+  color : ${(props) => props.theme.textColor}
 }
 a{
   text-decoration: none;
@@ -68,7 +69,9 @@ a{
 `
 function App() {
   return <>
-    <GlobalStyle /><Router />
+    <GlobalStyle />
+    <Router />
+    <ReactQueryDevtools initialIsOpen={true}/>
   </>
 }
 
