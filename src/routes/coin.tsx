@@ -205,7 +205,7 @@ function Coin() {
               </Link>
             </Tab>
           </Tabs>
-          <Outlet />
+          <Outlet context={{coinId}}/>
         </>
       )}
     </Container>
