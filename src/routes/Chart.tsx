@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
 import { useOutletContext, useParams } from "react-router-dom";
 import { fetchCoinHistory } from "../api";
-import ApexChart from "react-apexcharts"
+import ReactApexChart from "react-apexcharts";
 
 interface IHistorical {
     time_open: string;
@@ -19,52 +19,64 @@ interface IChartProps {
 
 function Chart() {
     const coinId = useOutletContext<IChartProps>();
-    const { isLoading, data } = useQuery<IHistorical[]>(["ohlcv", coinId.coinId], () => fetchCoinHistory(coinId.coinId!));
-    return <div>{isLoading ? "Loding Chart" : <ApexChart type="line"
+    const { isLoading, data } = useQuery<IHistorical[]>(["ohlcv", coinId.coinId],
+        () => fetchCoinHistory(coinId.coinId!)/* ,
+        {
+            refetchInterval: 10000,
+        } */);
+    return <div>{isLoading ? "Loding Chart" : <ReactApexChart
+        type="candlestick"
         series={[
             {
-                name: "price",
-                data: data?.map((price) => price.close) as number[],
-            }
+                 data: data?.map((price) => [
+                    new Date(price.time_open), // 날짜
+                    price.open.toFixed(3), // 시작가
+                    price.high.toFixed(3), // 최고가
+                    price.low.toFixed(3), // 최저가
+                    price.close.toFixed(3) // 종가
+                ]) as any,
+               
+            },
         ]}
         options={{
             theme: {
-                mode: "dark"
+              mode: "dark",
             },
             chart: {
-                height: 300,
-                width: 500,
-                toolbar: {
-                    show: false,
-                },
-                background: "transparent",
+              type: "candlestick",
+              height: 350,
+              width: 500,
+              toolbar: {
+                show:false,
+              },
+              background: "transparent",
             },
-            grid: { show: false },
             stroke: {
-                curve: "smooth",
-                width: 4
+              curve: "smooth",
+              width: 2,
             },
             yaxis: {
-                show: false,
+              show: false,
             },
             xaxis: {
-                axisBorder: { show: false },
-                axisTicks: { show: false },
-                labels: { show: false },
-                type: "datetime",
-                categories: data?.map((price) => price.time_close) as string[],
-            },
-            fill: {
-                type: "gradient",
-                gradient: { gradientToColors: ["#0be881"], stops: [0, 100], },
-            },
-            colors: ["#0fbcf9"],
-            tooltip: {
-                y: {
-                    formatter: (value) => `$ ${value.toFixed(3)}`
+              type: "datetime",
+              categories: data?.map((price) => price.time_close),
+              labels: {
+                style: {
+                  colors: '#7f8fa6'
                 }
+              }
+            },
+            plotOptions: {
+              candlestick: {
+                colors: {
+                  upward: '#3C90EB',
+                  downward: '#DF7D46'
+                }
+              }
             }
-        }} />}</div>
+          }}
+    />}</div>
 }
 
 export default Chart;
