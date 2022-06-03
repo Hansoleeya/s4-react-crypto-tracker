@@ -4,14 +4,16 @@ import Coin from "./routes/coin";
 import Coins from "./routes/coins";
 import Price from "./routes/Price";
 
-function Router() {
+interface IRouterProps{}
+
+function Router({}:IRouterProps) {
     return <BrowserRouter>
         <Routes>
             <Route path="/:coinId" element={<Coin />}>
                 <Route path="chart" element={<Chart />} />
                 <Route path="price" element={<Price />} />
             </Route>
-            <Route path="/" element={< Coins />} />
+            <Route path="/" element={< Coins/>} />
         </Routes>
     </BrowserRouter>
 }

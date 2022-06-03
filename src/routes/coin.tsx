@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import { Link, Outlet, Route, Routes, useLocation, useParams, useMatch } from "react-router-dom";
 import styled from "styled-components";
 import { fetchCoinInfo, fetchCoinTickers } from "../api";
-
+import { Helmet } from "react-helmet";
 const Container = styled.div`
   padding: 0px 20px;
   max-width: 480px;
@@ -55,7 +55,7 @@ const Tabs = styled.div`
   gap : 10px;
 `;
 
-const Tab = styled.span<{isActive:boolean}>`
+const Tab = styled.span<{ isActive: boolean }>`
   text-align: center;
   text-transform: uppercase;
   font-size: 12px;
@@ -63,12 +63,24 @@ const Tab = styled.span<{isActive:boolean}>`
   background-color: rgb(0, 0, 0, 0.5);
   padding: 7px 0px;
   border-radius: 10px;
-  color: ${props => props.isActive ? props.theme.accentColor :props.theme.textColor };
+  color: ${props => props.isActive ? props.theme.accentColor : props.theme.textColor};
   a {
     display: block;
   }
 `;
 
+const HomeBtn = styled.div`
+  width: 70px;
+  height: 30px;
+  padding: 5px 0px;
+  margin: 10px 0px;
+  text-align: center;
+  border-radius: 5px;
+  background-color: ${(props) => props.theme.accentColor};
+  a{
+    display: block;
+  }
+`;
 interface IRouterParams {
   coinId?: string;
 }
@@ -139,31 +151,31 @@ function Coin() {
   const priceMatch = useMatch("/:coinId/price");
   const chartMatch = useMatch("/:coinId/chart");
 
-  const {isLoading: infoLoading, data:infoData} = useQuery<IInfoData>(["info",coinId], ()=> fetchCoinInfo(coinId!));
-  const {isLoading: tickersLoading, data:tickersData} = useQuery<IPriceData>(["tickers",coinId], ()=> fetchCoinTickers(coinId!));
-  /* const [loading, setLoading] = useState(true);
-  const [priceInfo, setPriceInfo] = useState<IPriceData>();
-  const [info, setInfo] = useState<IInfoData>();
+  const { isLoading: infoLoading, data: infoData } = useQuery<IInfoData>(
+    ["info", coinId],
+    () => fetchCoinInfo(coinId!)
+  );
+  const { isLoading: tickersLoading, data: tickersData } = useQuery<IPriceData>(
+    ["tickers", coinId],
+    () => fetchCoinTickers(coinId!),
+    {
+      refetchInterval: 5000,
+    });
 
-  useEffect(() => {
-    (async () => {
-      const infoData = await (
-        await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-      ).json();
-      const priceData = await (
-        await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-      ).json();
-      setInfo(infoData);
-      setPriceInfo(priceData);
-      setLoading(false);
-    })();
-  }, [coinId]); */
- const loading = infoLoading || tickersLoading;
+  const loading = infoLoading || tickersLoading;
   return (
     <Container>
+      <Helmet>
+        <title>{state?.name ? state.name : loading ? "Loading.." : infoData?.name}</title>
+      </Helmet>
       <Header>
         <Title>{state?.name ? state.name : loading ? "Loading.." : infoData?.name}</Title>
       </Header>
+      <HomeBtn>
+        <Link to="/">
+          Home
+        </Link>
+      </HomeBtn>
       {loading ? (
         <Loader>Loading...</Loader>
       ) : (
@@ -178,8 +190,8 @@ function Coin() {
               <span>${infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Open Source:</span>
-              <span>{infoData?.open_source ? "Yes" : "No"}</span>
+              <span>price:</span>
+              <span>${tickersData?.quotes?.USD?.price?.toFixed(3)}</span>
             </OverviewItem>
           </Overview>
           <Description>{infoData?.description}</Description>
@@ -205,7 +217,7 @@ function Coin() {
               </Link>
             </Tab>
           </Tabs>
-          <Outlet context={{coinId}}/>
+          <Outlet context={{ coinId }} />
         </>
       )}
     </Container>
